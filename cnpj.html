@@ -3,33 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>atividade cnpj</title>
+    <title>Consulta CNPJ</title>
 </head>
 <body>
-    
-    <h1>consulta cnpj</h1>
+    <h1>Consulta CNPJ</h1>
 
     <label for="cnpj">CNPJ:</label>
-    <input type="text" id="cnpj" name="cnpj" placeholder="Digite o CNPJ">
-    <button onclick="consultarCNPJ()">Consultar</button>
+    <input type="text" id="cnpj" name="cnpj" placeholder="Digite o CNPJ" maxlength="18" />
+    <button>Consultar</button>
 
     <div id="resultado"></div>
 
     <script>
-        async function consultarCNPJ() {
-            const cnpj = document.getElementById("cnpj").value;
-            const url = `http://localhost:8080/cnpj/${cnpj}`;
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelector('button').addEventListener('click', consultarCNPJ);
+    });
 
-            try {
-                const response = await fetch(url);
-                const data = await response.text();
-                document.getElementById("resultado").textContent = data;
-            } catch (error) {
-                document.getElementById("resultado").textContent = "Erro: " + error;
-            }
+    async function consultarCNPJ() {
+        const cnpj = document.getElementById("cnpj").value.replace(/\D/g, '');
+        const resultadoDiv = document.getElementById("resultado");
+
+        if (cnpj.length !== 14) {
+            resultadoDiv.textContent = "CNPJ inválido. Digite um CNPJ com 14 dígitos.";
+            return;
         }
-    </script>
 
+        const url = `https://receitaws.com.br/v1/cnpj/${cnpj}`;
+
+        try {
+            const response = await fetch(url);
+
+            if (!response.ok) {
+                throw new Error(`Erro HTTP! Status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            if (data.status === "ERROR") {
+                resultadoDiv.textContent = "CNPJ não encontrado ou erro na consulta.";
+            } else {
+                resultadoDiv.textContent = JSON.stringify(data, null, 2);
+            }
+        } catch (error) {
+            resultadoDiv.textContent = `Erro: ${error.message}`;
+        }
+    }
+    </script>
+</body>
+</html>
+
+
+    
 
 </body>
 </html>
